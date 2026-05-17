@@ -26,3 +26,14 @@ variable "proxmox_new_vm_name" {
   description = "Name of the new VM to be created"
   type        = string
 }
+
+variable "r2_bucket_name" {
+  description = "Name of the R2 bucket for Terraform state"
+  type        = string
+  default     = "ccpndmr2b01"
+}
+
+variable "cloudflare_account_id" {
+  type        = string
+  description = "Cloudflare Account ID"
+}
