@@ -6,6 +6,9 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
   machine = "q35"
   bios = "ovmf"
   description = "Ubuntu 26.04 LTS Template"
+  agent {
+    enabled = true
+  }
   cpu {
     cores = 2
   }
@@ -29,6 +32,7 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
       username = "loc_admin"
       password = var.proxmox_loc_admin_password
     }
+    datastore_id = "local-lvm"
   }
   network_device {
     bridge = "vmbr0"

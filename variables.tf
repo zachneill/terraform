@@ -4,6 +4,12 @@ variable "proxmox_loc_admin_password" {
   sensitive   = true
 }
 
+variable "proxmox_loc_admin_password_hashed" {
+  description = "Hashed password for loc_admin user (mkpasswd -m sha-512)"
+  type        = string
+  sensitive   = true
+}
+
 variable "proxmox_svc_ansible_password" {
   description = "Password for svc_ansible user"
   type        = string
@@ -36,4 +42,9 @@ variable "r2_bucket_name" {
 variable "cloudflare_account_id" {
   type        = string
   description = "Cloudflare Account ID"
+}
+
+variable "tailscale_auth_key" {
+  type        = string
+  description = "Tailscale auth key for node authentication"
 }
