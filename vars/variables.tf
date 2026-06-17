@@ -28,9 +28,25 @@ variable "proxmox_controller_node" {
   default     = "odpndmcnt01"
 }
 
-variable "proxmox_new_vm_name" {
-  description = "Name of the new VM to be created"
-  type        = string
+variable "proxmox_plt_vm_map" {
+  description = "Map of platform VM configurations"
+  type        = map(object({
+    address = string
+  }))
+}
+
+variable "proxmox_adc_vm_map" {
+  description = "Map of ADC VM configurations"
+  type        = map(object({
+    address = string
+  }))
+}
+
+variable "proxmox_app_vm_map" {
+  description = "Map of application VM configurations"
+  type        = map(object({
+    address = string
+  }))
 }
 
 variable "r2_bucket_name" {

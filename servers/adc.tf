@@ -1,8 +1,9 @@
-resource "proxmox_virtual_environment_vm" "ubuntu_clone" {
-  name = var.proxmox_new_vm_name
+resource "proxmox_virtual_environment_vm" "adc_clone" {
+  for_each = var.proxmox_adc_vm_map
+  name = each.key
   node_name = var.proxmox_controller_node
   clone {
-    vm_id = proxmox_virtual_environment_vm.ubuntu_template.id
+    vm_id = proxmox_virtual_environment_vm.windows_template.id
   }
   agent {
     enabled = true
@@ -16,15 +17,16 @@ resource "proxmox_virtual_environment_vm" "ubuntu_clone" {
     }
     ip_config {
       ipv4 {
-        address = "192.168.1.11/24"
+        address = each.value.address
         gateway = "192.168.1.1"
       }
     }
-    user_data_file_id = proxmox_virtual_environment_file.ubuntu_cloud_init.id
+    user_data_file_id = proxmox_virtual_environment_file.windows_cloud_init.id
   }
 }
 
-resource "proxmox_virtual_environment_file" "ubuntu_cloud_init" {
+resource "proxmox_virtual_environment_file" "windows_cloud_init" {
+  for_each = var.proxmox_adc_vm_map
   content_type = "snippets"
   datastore_id = "local"
   node_name = var.proxmox_controller_node
@@ -32,7 +34,7 @@ resource "proxmox_virtual_environment_file" "ubuntu_cloud_init" {
   source_raw {
     data = <<-EOF
     #cloud-config
-    hostname: ${var.proxmox_new_vm_name}.aut.zachneill.com
+    hostname: ${each.key}.aut.zachneill.com
     users:
       - default
       - name: loc_admin
@@ -48,23 +50,13 @@ resource "proxmox_virtual_environment_file" "ubuntu_cloud_init" {
     package_update: true
     packages:
       - qemu-guest-agent
-      - net-tools
-      - curl
-      - git
-      - realmd 
-      - sssd 
-      - sssd-tools
-      - adcli
-      - krb5-user
-      - samba-common-bin
-      - whois
     runcmd:
       - systemctl enable --now qemu-guest-agent
       - ['sh', '-c', 'curl -fsSL https://tailscale.com/install.sh | sh']
       - ['sh', '-c', "echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && sudo sysctl -p /etc/sysctl.d/99-tailscale.conf" ]
       - ['tailscale', 'up', '--auth-key=${var.tailscale_auth_key}']
-    EOF 
+    EOF
 
-    file_name = "user_data_cloud_init.yaml"
+    file_name = "user_data_windows_cloud_init.yaml"
   }
 }
