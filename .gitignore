@@ -5,3 +5,4 @@ terraform.tfvars
 node_modules
 package-lock.json
 wrangler.jsonc
+setup_local.sh
