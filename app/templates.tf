@@ -1,16 +1,17 @@
-resource "proxmox_virtual_environment_vm" "ubuntu_template" {
-  name        = "ubuntu-template"
+resource "proxmox_virtual_environment_vm" "alma_template" {
+  name        = "alma-template"
   node_name   = var.proxmox_controller_node
   template    = true
   started     = false
   machine     = "q35"
   bios        = "ovmf"
-  description = "Ubuntu 26.04 LTS Template"
+  description = "AlmaLinux 10.2 Template"
   agent {
     enabled = true
   }
   cpu {
     cores = 2
+    type  = "host"
   }
   memory {
     dedicated = 2048
@@ -21,11 +22,11 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
   }
   disk {
     datastore_id = "local-lvm"
-    file_id      = proxmox_download_file.ubuntu_cloud_image.id
+    file_id      = proxmox_download_file.alma_cloud_image.id
     interface    = "virtio0"
     iothread     = true
     discard      = "on"
-    size         = 20
+    size         = 60
   }
   initialization {
     user_account {
@@ -39,10 +40,11 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
   }
 }
 
-resource "proxmox_download_file" "ubuntu_cloud_image" {
-  content_type = "iso"
+resource "proxmox_download_file" "alma_cloud_image" {
+  content_type = "import"
   datastore_id = "local"
   node_name    = var.proxmox_controller_node
-  url          = "https://cloud-images.ubuntu.com/releases/resolute/release/ubuntu-26.04-server-cloudimg-amd64.img"
+  url          = "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
   overwrite    = true
+  overwrite_unmanaged    = true
 }
