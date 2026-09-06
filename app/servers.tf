@@ -9,7 +9,7 @@ resource "proxmox_virtual_environment_vm" "alma_clone" {
     enabled = true
   }
   memory {
-    dedicated = 12288
+    dedicated = 10240
   }
   initialization {
     dns {
