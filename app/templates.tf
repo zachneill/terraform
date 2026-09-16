@@ -6,6 +6,8 @@ resource "proxmox_virtual_environment_vm" "alma_template" {
   machine     = "q35"
   bios        = "ovmf"
   description = "AlmaLinux 10.2 Template"
+  stop_on_destroy = true
+
   agent {
     enabled = true
   }
@@ -49,8 +51,7 @@ resource "proxmox_download_file" "alma_cloud_image" {
   overwrite_unmanaged    = true
 }
 
-resource "proxmox_virtual_environment_file" "alma_cloud_init" {
-  for_each = var.proxmox_app_vm_map
+resource "proxmox_virtual_environment_file" "oapautapp01_cloud_init" {
   content_type = "snippets"
   datastore_id = "local"
   node_name = var.proxmox_controller_node
@@ -58,7 +59,7 @@ resource "proxmox_virtual_environment_file" "alma_cloud_init" {
   source_raw {
     data = <<-EOF
     #cloud-config
-    hostname: ${each.key}.aut.zachneill.com
+    hostname: oapautapp01.aut.zachneill.com
     users:
       - default
       - name: loc_admin
@@ -92,7 +93,7 @@ resource "proxmox_virtual_environment_file" "alma_cloud_init" {
       - ['tailscale', 'up', '--auth-key=${var.tailscale_auth_key}']
     EOF 
 
-    file_name = "user_data_cloud_init.yaml"
+    file_name = "oapautapp01_cloud_init.yaml"
   }
 }
 
@@ -101,6 +102,7 @@ resource "proxmox_virtual_environment_vm" "alma_template_custom" {
   node_name   = var.proxmox_controller_node
   template    = true
   started     = false
+  stop_on_destroy = true
   machine     = "q35"
   bios        = "ovmf"
   description = "AlmaLinux 10.2 Template with Custom Image"
@@ -142,13 +144,12 @@ resource "proxmox_download_file" "alma_cloud_image_custom" {
   content_type = "import"
   datastore_id = "local"
   node_name    = var.proxmox_controller_node
-  url          = "https://git.aut.zachneill.com/api/packages/it/generic/aut-app-alma/0.0.1/AlmaLinux-10-GenericCloud-10.2-20260912.0.x86_64.qcow2"
+  url          = "https://git.aut.zachneill.com/api/packages/AUT/generic/aut-app-alma/0.0.3/AlmaLinux-10-GenericCloud-10.2-20260915.0.x86_64.qcow2"
   overwrite    = true
   overwrite_unmanaged    = true
 }
 
-resource "proxmox_virtual_environment_file" "alma_cloud_init_custom" {
-  for_each = var.proxmox_app_vm_map
+resource "proxmox_virtual_environment_file" "oapautapp02_cloud_init" {
   content_type = "snippets"
   datastore_id = "local"
   node_name = var.proxmox_controller_node
@@ -157,12 +158,13 @@ resource "proxmox_virtual_environment_file" "alma_cloud_init_custom" {
     data = <<-EOF
     #cloud-config
     hostname: oapautapp02.aut.zachneill.com
+    fqdn: oapautapp02.aut.zachneill.com
     users:
       - default
       - name: loc_admin
         sudo: ALL=(ALL) NOPASSWD:ALL
         groups: 
-          - sudo
+          - wheel
           - docker
         shell: /bin/bash
         lock_passwd: false
@@ -176,6 +178,6 @@ resource "proxmox_virtual_environment_file" "alma_cloud_init_custom" {
       - ['tailscale', 'up', '--auth-key=${var.tailscale_auth_key}']
     EOF 
 
-    file_name = "user_data_cloud_init_custom.yaml"
+    file_name = "oapautapp02_cloud_init.yaml"
   }
 }
