@@ -16,13 +16,6 @@ variable "proxmox_controller_node" {
   default     = "odpndmcnt01"
 }
 
-variable "proxmox_adc_vm_map" {
-  description = "Map of ADC VM configurations"
-  type        = map(object({
-    address = string
-  }))
-}
-
 variable "tailscale_auth_key" {
   type        = string
   description = "Tailscale auth key for node authentication"

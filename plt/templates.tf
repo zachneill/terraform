@@ -6,6 +6,8 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
   machine     = "q35"
   bios        = "ovmf"
   description = "Ubuntu 26.04 LTS Template"
+  stop_on_destroy = true
+
   agent {
     enabled = true
   }
@@ -40,57 +42,10 @@ resource "proxmox_virtual_environment_vm" "ubuntu_template" {
 }
 
 resource "proxmox_download_file" "ubuntu_cloud_image" {
-  content_type = "iso"
+  content_type = "import"
   datastore_id = "local"
   node_name    = var.proxmox_controller_node
-  url          = "https://cloud-images.ubuntu.com/releases/resolute/release/ubuntu-26.04-server-cloudimg-amd64.img"
+  url          = "https://ccpndmr2b02.ndm.zachneill.com/Ubuntu-26-ServerCloud-26.04.qcow2"
   overwrite    = true
   overwrite_unmanaged    = true
-}
-
-
-resource "proxmox_virtual_environment_file" "ubuntu_cloud_init" {
-  for_each = var.proxmox_plt_vm_map
-  content_type = "snippets"
-  datastore_id = "local"
-  node_name = var.proxmox_controller_node
-
-  source_raw {
-    data = <<-EOF
-    #cloud-config
-    hostname: ${each.key}.aut.zachneill.com
-    users:
-      - default
-      - name: loc_admin
-        sudo: ALL=(ALL) NOPASSWD:ALL
-        groups: 
-          - sudo
-        shell: /bin/bash
-        lock_passwd: false
-        passwd: ${var.proxmox_loc_admin_password_hashed}
-    chpasswd:
-      expire: false
-    ssh_pwauth: true
-    package_update: true
-    packages:
-      - qemu-guest-agent
-      - net-tools
-      - curl
-      - git
-      - realmd 
-      - sssd 
-      - sssd-tools
-      - adcli
-      - krb5-user
-      - samba-common-bin
-      - whois
-    runcmd:
-      - systemctl enable --now qemu-guest-agent
-      - ['sh', '-c', 'curl -fsSL https://tailscale.com/install.sh | sh']
-      - ['sh', '-c', "echo 'net.ipv4.ip_forward = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && echo 'net.ipv6.conf.all.forwarding = 1' | sudo tee -a /etc/sysctl.d/99-tailscale.conf && sudo sysctl -p /etc/sysctl.d/99-tailscale.conf" ]
-      - ['tailscale', 'up', '--auth-key=${var.tailscale_auth_key}']
-    EOF 
-
-    file_name = "user_data_cloud_init.yaml"
-  }
 }

@@ -1,6 +1,5 @@
 resource "proxmox_virtual_environment_vm" "adc_clone" {
-  for_each = var.proxmox_adc_vm_map
-  name = each.key
+  name = "owpautadc01"
   node_name = var.proxmox_controller_node
   clone {
     vm_id = 101
@@ -18,7 +17,7 @@ resource "proxmox_virtual_environment_vm" "adc_clone" {
     }
     ip_config {
       ipv4 {
-        address = each.value.address
+        address = "192.168.1.21/24"
         gateway = "192.168.1.1"
       }
     }
