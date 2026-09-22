@@ -45,7 +45,7 @@ resource "proxmox_download_file" "ubuntu_cloud_image" {
   content_type = "import"
   datastore_id = "local"
   node_name    = var.proxmox_controller_node
-  url          = "https://ccpndmr2b02.ndm.zachneill.com/Ubuntu-26-ServerCloud-26.04.qcow2"
+  url          = "https://ccpndmr2b02.ndm.zachneill.com/images/Ubuntu-26-ServerCloud-26.04-20260917.qcow2"
   overwrite    = true
   overwrite_unmanaged    = true
 }
